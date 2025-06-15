@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom'; // ✅ Import this
 
 const Login = () => {
   const [state, setState] = useState('Register');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const navigate = useNavigate(); // ✅ Create navigate function
 
   const handleLoginClick = () => setState('Login');
   const handleRegisterClick = () => setState('Register');
@@ -33,16 +36,23 @@ const Login = () => {
       return;
     }
 
-    const url = state === 'Register' ? 'http://localhost:3001/api/account/signup' : 'http://localhost:3001/api/account/signin';
+    const url = state === 'Register'
+      ? 'http://localhost:3001/api/account/signup'
+      : 'http://localhost:3001/api/account/signin';
 
-    const payload =
-      state === 'Register'
-        ? { username, email, password }
-        : { email, password };
+    const payload = state === 'Register'
+      ? { username, email, password }
+      : { email, password };
 
     try {
       const response = await axios.post(url, payload);
       toast.success(state === 'Register' ? 'Signup success' : 'Login success');
+
+      if (state === 'Login') {
+        setTimeout(() => {
+          navigate('/home'); // ✅ Redirect to Home after successful login
+        }, 1000); // short delay so toast can show
+      }
     } catch (error) {
       if (error.response && error.response.data) {
         toast.error(error.response.data.error || 'Something went wrong');
@@ -96,8 +106,6 @@ const Login = () => {
           <li>Once logged in, you can upload, view, edit, and delete products</li>
         </ol>
       </div>
-
-
     </>
   );
 };
